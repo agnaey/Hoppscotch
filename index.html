@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+    <!-- alert -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <title>Hoopscotch</title>
+</head>
+<style>
+    html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Prevents the whole page from scrolling */
+}
+
+.main {
+    display: flex;
+    height: 100vh; /* Full viewport height */
+}
+
+
+.left-panel, .right-panel {
+    display: flex;
+    flex-direction: column;
+    width: 250px; /* Adjust width as needed */
+    color: white;
+}
+
+
+
+    #navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    #search {
+        width: 390px;
+        height: 30px;
+        background-color: rgb(38,38,38);
+        border: none
+    }
+    #search::placeholder {
+        color: rgb(128,128,128);
+    }
+
+    nav {
+        background-color: rgb(24,24,24);
+        color: #000;
+    }
+    .navbar-brand{
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+    }
+    .nav-link{
+        color: white;
+        font-size: 13px;
+        font-weight: 600;
+
+    }
+    #save{
+        color:rgb(16,181,126);
+        background-color: rgb(24,41,35);
+        padding: 6px 12px;
+        border: rgb(16, 181, 126) 1px solid;
+        border-radius: 5px;
+    }
+    #save:hover{
+        background-color: rgb(35, 58, 50);
+    }
+    #login{
+        color:rgb(255, 255, 255);
+        background-color: rgb(79, 81, 202);
+        padding: 6px 12px;
+        border: none;
+        border-radius: 5px;
+    }
+    #login:hover{
+        background-color: rgb(92, 94, 233);
+    }
+    * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.main {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.panel {
+    overflow: auto;
+}
+
+.left-panel {
+    background: rgb(24,24,24);
+    color: white;
+    width: 100%;
+    min-width: 300px;
+}
+
+.right-panel {
+    background: #222;
+    color: white;
+    width: 30%;
+    min-width: 200px;
+}
+
+.resizer {
+    width: 2px;
+    cursor: ew-resize;
+    background: #555;
+    transition: background 0.2s;
+}
+
+.resizer:hover {
+    background: #777;
+}
+
+
+@media (max-width: 988px) {
+    .main {
+        flex-direction: column;
+    }
+    
+    .left-panel, .right-panel {
+        width: 100%;
+        min-width: unset;
+        height: 100%;
+    }
+
+    .resizer {
+        height: 5px;
+        width: 100%;
+        cursor: ns-resize;
+    }
+    .nav-link{
+        width: 30%;
+    }
+    #search{
+        width: 50%;
+    }
+}
+.content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow: auto;
+            min-height: 100px;
+        }
+
+        .resizerrr {
+            height: 5px;
+            cursor: ns-resize;
+            background: #aaa;
+            width: 100%;
+        }
+
+        /* Sidebar Styles */
+.sidebar {
+    width: 50px;
+    height: 100vh;
+    background: #1e1e1e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid #333;
+}
+
+.sidebar-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    text-decoration: none;
+    margin: 5px 0;
+    font-size: 18px;
+}
+.sidebar-item.active{
+    border-left: 2px solid rgb(92, 94, 233);
+}
+.sidebar-item.active,
+.sidebar-item:hover {
+    color: #fff;
+    background: #333;
+    border-radius: 5px;
+}
+
+
+
+.request-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e1e1e;
+    /* padding: 8px 15px; */
+    color: white;
+    font-size: 14px;
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    background: #1e1e1e;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.tab.active {
+    background: #404040;
+}
+
+.close-tab {
+    margin-left: 10px;
+    cursor: pointer;
+    color: red;
+}
+
+.add-tab {
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    background: #292929;
+    border-radius: 5px;
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.env-select {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.env-select:hover {
+    color: white;
+}
+
+.eye-icon {
+    cursor: pointer;
+}
+
+.tab-content {
+    background: rgb(24,24,24);
+    padding: 20px;
+    margin-top: 10px;
+    color: white;
+}
+
+.content-panel {
+    display: none;
+}
+
+.content-panel.active {
+    display: block;
+}
+
+
+.eye-icon {
+    cursor: pointer;
+}
+.tab {
+    padding: 10px 15px;
+    display: inline-block;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: border 0.3s;
+    width: 150px;
+
+}
+
+.tab.active {
+    border-top: 2px solid rgb(92, 94, 233); /* Active tab effect */
+}
+
+
+.request-bar1 {
+            display: flex;
+            align-items: center;
+            /* background-color: #2a2a2a; */
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .method-dropdown {
+            position: relative;
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #292929;
+            border-radius: 3px;
+        }
+
+        .method-dropdown:hover {
+            background-color: #292929;
+        }
+
+        .method-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: rgb(28,28,30);
+            border-radius: 3px;
+            width: 100px;
+            border: 1px solid #353333;
+            z-index: 1000; /* Bring it above other elements */
+
+        }
+
+        .method-options div {
+            padding: 5px 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .method-options div:hover {
+            background-color: #292929;
+        }
+
+        .input-url {
+            flex-grow: 1;
+            padding: 5px;
+            border: none;
+            border-radius: 3px;
+            outline: none;
+            background-color: #292929;
+            color: white;
+        }
+
+        .send-button {
+            padding: 5px 29px;
+            background-color: rgb(92, 94, 233);
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .send-button:hover {
+            background-color: #7b68ee;
+        }
+        .save-button {
+            padding: 5px 29px;
+            background-color: #292929;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: grey;
+        }
+
+        .custom-tab-container {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid #333;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .custom-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            color: #bbb;
+            position: relative;
+        }
+
+        .custom-tab.active {
+            color: white;
+            font-weight: bold;
+        }
+
+        .custom-tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #6a5acd;
+        }
+
+        .custom-content-panel {
+            display: none;
+            padding: 20px;
+            width: 600px;
+            background-color: #2a2a2a;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .custom-content-panel.active {
+            display: block;
+        }
+
+
+</style>
+
+<body style="background-color: rgb(24,24,24);">
+    <nav id="navbar" class="navbar navbar-expand-lg  navbar-dark">
+        <div class="container-fluid">
+            <!-- Left (Brand) -->
+            <a class="navbar-brand" href="#">HOOPSCOTCH</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <form class="d-flex mx-auto my-2 my-lg-0" role="search" action="" method="POST">
+                    <input id="search" class="form-control me-2" type="text" placeholder="Search"
+                        aria-label="Search" name="searched">
+                </form>
+
+                <!-- Right (Links) -->
+                <div class="d-flex flex-column flex-lg-row align-items-left gap-3">
+                    <a class="nav-link " id="save" href="#">
+                        <img src="media/icon8.png" width="19px" alt="">&nbsp;&nbsp; Save My Workspace
+                    </a>
+                    <a class="nav-link " id="login" href="#">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+<!-- ---------------------------------------main-------------------------------------------- -->
+    
+    <div class="main">
+        
+        <div class="sidebar d-none d-lg-block">
+    <a href="#" class="sidebar-item active"><i class="fas fa-link"></i></a>
+    <a href="#" class="sidebar-item"><i class="fa-brands fa-react"></i></a>
+    <a href="#" class="sidebar-item"><i class="fa fa-globe"></i></a>
+    <a href="#" class="sidebar-item"><i class="fa fa-cog"></i></a>
+</div>
+
+        <div class="panel left-panel">
+            <div class="request-bar">
+                <div class="left-section" id="tab-container">
+                    
+                    <div class="add-tab" id="add-tab">+</div>
+                </div>
+
+            
+                <!-- Right Section -->
+                <div class="right-section">
+                    <div class="env-select">
+                        <span class="env-icon"><i class="fa-solid fa-layer-group"></i></span>
+                        <span>Select environment</span>
+                        <span class="dropdown-arrow">▾</span>
+                    </div>
+                    <div class="eye-icon"><i class="fa-regular fa-eye"></i></div>&nbsp;&nbsp;
+
+                </div>
+                
+            </div>
+            
+            <!-- Tab Content Container -->
+            
+            
+            
+                      
+          
+            <div class="content" id="topContent">
+
+                <div class="request-bar1">
+                    <!-- HTTP Method Selection -->
+                    <div class="method-dropdown" id="method-selector">
+                        <span id="selected-method">GET</span>
+                        <div class="method-options mt-3" id="method-options" >
+                            <div style="color: green;" onclick="changeMethod('GET')"><b>GET</b></div>
+                            <div style="color: orange;" onclick="changeMethod('POST')"><b>POST</b></div>
+                            <div style="color: rgb(0, 140, 255);" onclick="changeMethod('PUT')"><b>PUT</b></div>
+                            <div style="color: purple;" onclick="changeMethod('PATCH')"><b>PATCH</b></div>
+                            <div style="color: red;" onclick="changeMethod('DELETE')"><b>DELETE</b></div>
+                            <div style="color: yellow;" onclick="changeMethod('OPTIONS')">OPTIONS</div>
+                        </div>
+                    </div>
+            
+                    <!-- URL Input -->
+                    <input type="text" class="input-url " placeholder="Enter request URL" value="https://echo.hoppscotch.io">
+                    <button class="send-button">Send</button>
+                    <button  class="save-button"><i class="fa-regular fa-floppy-disk"></i>&nbsp;&nbsp;
+                        Save</button>
+
+                </div>
+            
+                
+                <div class="custom-tab-container">
+                    <div class="custom-tab active" data-target="custom-param">Parameters</div>
+                    <div class="custom-tab" data-target="custom-body">Body</div>
+                    <div class="custom-tab" data-target="custom-header">Headers</div>
+                </div>
+            
+                
+            
+
+
+
+
+            <div class="tab-content" id="tab-content">
+                <div class="content-panel active">This is Tab 1 content.</div>
+                <h2>Request Builder</h2>
+                <p>Place your API request form here.</p>
+                <div class="custom-content-panel active" id="custom-param">Parameters Content</div>
+                <div class="custom-content-panel" id="custom-body">Body Content</div>
+                <div class="custom-content-panel" id="custom-header">Headers Content</div>
+
+
+
+            </div>
+        </div>
+
+        </div>
+        
+    
+       
+    
+      
+
+<!-- ----------------------------------------------------------------------------------- -->
+        <div class="resizer d-none d-lg-block"></div>
+ <!-- ----------------------------------------------------------------------------------- -->
+ <div class="sidebar d-none d-lg-block">
+    <a href="#" class="sidebar-item active"><i class="fas fa-folder"></i></a>
+    <a href="#" class="sidebar-item"><i class="fas fa-layer-group"></i></a>
+    <a href="#" class="sidebar-item"><i class="fas fa-share-alt"></i></a>
+    <a href="#" class="sidebar-item"><i class="fas fa-angle-left"></i></a>
+</div>
+        <div class="panel right-panel d-none d-lg-block">
+            <div class="content">
+                
+                <h2>Collections</h2>
+                <p>Manage your saved requests here.</p>
+            </div>
+        </div>
+    </div>
+    
+
+
+
+<!-- ----------------------------------------------------------------------------------- -->
+</body>
+<script>
+    const resizer = document.querySelector(".resizer");
+const leftPanel = document.querySelector(".left-panel");
+const rightPanel = document.querySelector(".right-panel");
+
+let isResizing = false;
+
+resizer.addEventListener("mousedown", (event) => {
+    isResizing = true;
+    document.addEventListener("mousemove", handleResize);
+    document.addEventListener("mouseup", () => {
+        isResizing = false;
+        document.removeEventListener("mousemove", handleResize);
+    });
+});
+
+function handleResize(event) {
+    if (!isResizing) return;
+
+    let newLeftWidth = event.clientX / window.innerWidth * 100;
+    if (newLeftWidth > 20 && newLeftWidth < 80) {
+        leftPanel.style.width = `${newLeftWidth}%`;
+        rightPanel.style.width = `${100 - newLeftWidth}%`;
+    }
+}
+
+</script>
+
+<script>
+    // Function to create a new tab
+document.getElementById("add-tab").addEventListener("click", function () {
+    const tabContainer = document.getElementById("tab-container");
+    const tabContent = document.getElementById("tab-content");
+
+    // Count existing tabs
+    let tabCount = document.querySelectorAll(".tab").length;
+
+    // Create new tab
+    const newTab = document.createElement("div");
+    newTab.classList.add("tab");
+    newTab.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="request-method text-success">GET</div>
+            <div class="request-title">Untitled </div>
+            <div class="close-tab">&times;</div>
+        </div>
+    `;
+
+    // Create new content for the tab
+    const newContent = document.createElement("div");
+    newContent.classList.add("content-panel");
+    newContent.innerHTML = `This is content for Tab ${tabCount}`;
+
+    // Append new tab and content
+    tabContainer.insertBefore(newTab, document.getElementById("add-tab"));
+    tabContent.appendChild(newContent);
+
+    // Activate new tab
+    activateTab(newTab, newContent);
+
+    // Close tab functionality
+    newTab.querySelector(".close-tab").addEventListener("click", function () {
+        newTab.remove();
+        newContent.remove();
+
+        // If no tabs remain, restore the default "Untitled" tab
+        if (document.querySelectorAll(".tab").length === 0) {
+            createDefaultTab();
+        }
+    });
+
+    // Click to switch tabs
+    newTab.addEventListener("click", function () {
+        activateTab(newTab, newContent);
+    });
+});
+
+// Function to activate a tab
+function activateTab(tab, content) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".content-panel").forEach(c => c.classList.remove("active"));
+    tab.classList.add("active");
+    content.classList.add("active");
+}
+
+// Function to create the default "Untitled" tab
+function createDefaultTab() {
+    const tabContainer = document.getElementById("tab-container");
+    const tabContent = document.getElementById("tab-content");
+
+    // **Remove any existing tabs before creating a new default one**
+    document.querySelectorAll(".tab").forEach(tab => tab.remove());
+    document.querySelectorAll(".content-panel").forEach(content => content.remove());
+
+    // Create the default tab
+    const defaultTab = document.createElement("div");
+    defaultTab.classList.add("tab", "active");
+    defaultTab.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="request-method text-success">GET</div> 
+            <div class="request-title">Untitled</div> 
+        </div>
+    `;
+
+    // Create default content
+    const defaultContent = document.createElement("div");
+    defaultContent.classList.add("content-panel", "active");
+    defaultContent.innerHTML = "This is the default Untitled content.";
+
+    // Insert default tab before the + button
+    tabContainer.insertBefore(defaultTab, document.getElementById("add-tab"));
+    tabContent.appendChild(defaultContent);
+
+    // Clicking it activates it
+    defaultTab.addEventListener("click", function () {
+        activateTab(defaultTab, defaultContent);
+    });
+}
+
+// Ensure a default tab is created when the page loads
+createDefaultTab();
+</script>
+
+
+<script>
+    document.getElementById("method-selector").addEventListener("click", function () {
+        const options = document.getElementById("method-options");
+        options.style.display = options.style.display === "block" ? "none" : "block";
+    });
+
+    function changeMethod(method) {
+        document.getElementById("selected-method").innerText = method;
+        document.getElementById("method-options").style.display = "none";
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!document.getElementById("method-selector").contains(event.target)) {
+            document.getElementById("method-options").style.display = "none";
+        }
+    });
+</script>
+                <script>
+                    const customTabs = document.querySelectorAll(".custom-tab");
+                    const customContents = document.querySelectorAll(".custom-content-panel");
+            
+                    customTabs.forEach(tab => {
+                        tab.addEventListener("click", function () {
+                            // Remove active class from all tabs and content panels
+                            customTabs.forEach(t => t.classList.remove("active"));
+                            customContents.forEach(c => c.classList.remove("active"));
+            
+                            // Add active class to clicked tab and corresponding content
+                            this.classList.add("active");
+                            document.getElementById(this.dataset.target).classList.add("active");
+                        });
+                    });
+                </script>
+
+
+</html>

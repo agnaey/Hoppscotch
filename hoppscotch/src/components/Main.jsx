@@ -6,45 +6,53 @@ import { faReact } from "@fortawesome/free-brands-svg-icons";
 
 const Add = () => {
     const [selectedMethod, setSelectedMethod] = useState("GET");
-    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET" }]);
+    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET",  url: "https://echo.hoppscotch.io" }]);
     const [activeTab, setActiveTab] = useState(0);
     const [isResizing, setIsResizing] = useState(false);
+    const [dropdown, setDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
     const leftPanelRef = useRef(null);
     const rightPanelRef = useRef(null);
     const [activeSection, setActiveSection] = useState("custom-param");
-
-
+    const methodColors = {
+        GET: "green",
+        POST: "orange",
+        PUT: "rgb(0, 140, 255)",
+        PATCH: "purple",
+        DELETE: "red",
+    };
     const changeMethod = (method) => {
-        setSelectedMethod(method);
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
+        );
+        setSelectedMethod(method); // Update displayed method
+        setDropdown(false); // Close dropdown
+    };
+    const changeURL = (newURL) => {
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, url: newURL } : tab))
+        );
     };
 
-
-
-
-
     const addTab = () => {
-        const newTab = {
-            id: tabs.length,
-            title: "Untitled",
-            method: "GET",
-        };
+        const newTab = { id: Date.now(), title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io" };
         setTabs([...tabs, newTab]);
         setActiveTab(newTab.id);
+        setSelectedMethod("GET"); // Reset method for new tab
     };
 
     const removeTab = (id) => {
-        const updatedTabs = tabs.filter((tab) => tab.id !== id);
-        setTabs(updatedTabs);
-
-        if (id === activeTab && updatedTabs.length > 0) {
-            setActiveTab(updatedTabs[0].id);
-        } else if (updatedTabs.length === 0) {
-            setTabs([{ id: 0, title: "Untitled", method: "GET" }]);
-            setActiveTab(0);
+        setTabs(tabs.filter((tab) => tab.id !== id));
+        if (activeTab === id && tabs.length > 1) {
+            setActiveTab(tabs[0].id);
+            setSelectedMethod(tabs[0].method);
         }
     };
 
-    
+    const showDropdown = () => {
+        setDropdown((prev) => !prev);
+    };
 
     useEffect(() => {
         const handleResize = (event) => {
@@ -55,25 +63,39 @@ const Add = () => {
                 rightPanelRef.current.style.width = `${100 - newLeftWidth}%`;
             }
         };
-
+    
         const stopResizing = () => {
             setIsResizing(false);
         };
-
+    
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdown(false);
+            }
+        };
+    
         if (isResizing) {
             document.addEventListener("mousemove", handleResize);
             document.addEventListener("mouseup", stopResizing);
         }
-
+    
+        document.addEventListener("mousedown", handleClickOutside);
+    
         return () => {
             document.removeEventListener("mousemove", handleResize);
             document.removeEventListener("mouseup", stopResizing);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isResizing]);
+    
+
+
+    function showdrpdown(){
+        setdropdown(!dropdown);
+    }
 
     return (
         <div className="main">
-            {/* Left Sidebar */}
             <div className="sidebar d-none d-lg-block">
                 <a href="#" className="sidebar-item active"><FontAwesomeIcon icon={faLink} /></a>
                 <a href="#" className="sidebar-item"><FontAwesomeIcon icon={faReact} /></a>
@@ -84,18 +106,22 @@ const Add = () => {
             {/* Left Panel */}
             <div className="panel left-panel" ref={leftPanelRef}>
                 <div className="request-bar">
-                    <div className="left-section" id="tab-container">
+                <div className="left-section">
                         {tabs.map((tab) => (
-                            <div key={tab.id} className={`tab ${tab.id === activeTab ? "active" : ""}`} onClick={() => setActiveTab(tab.id)}
+                            <div key={tab.id} className={`tab ${tab.id === activeTab ? "active" : ""}`}
+                                onClick={() => {
+                                    setActiveTab(tab.id);
+                                    setSelectedMethod(tab.method);
+                                }}
                                 style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
-                                <div className="request-method text-success">{tab.method}</div>
+                                <div className="request-method " style={{ color: methodColors[tab.method], fontWeight: "bold" }}>{tab.method}</div>
                                 <div className="request-title">{tab.title}</div>
                                 {tabs.length > 1 && (
                                     <div className="close-tab" onClick={(e) => { e.stopPropagation(); removeTab(tab.id); }}>&times;</div>
                                 )}
                             </div>
                         ))}
-                        <div className="add-tab" id="add-tab" onClick={addTab}>+</div>
+                        <div className="add-tab" onClick={addTab}>+</div>
                     </div>
 
                     <div className="right-section">
@@ -110,23 +136,31 @@ const Add = () => {
 
                 {/* Request Bar */}
                 <div className="content" id="topContent">
-                    <div className="request-bar1">
-                        <div className="method-dropdown">
-                            <span>{selectedMethod}</span>
-                            <div className="method-options mt-3">
-                                <div style={{ color: "green" }} onClick={() => changeMethod("GET")}><b>GET</b></div>
-                                <div style={{ color: "orange" }} onClick={() => changeMethod("POST")}><b>POST</b></div>
-                                <div style={{ color: "rgb(0, 140, 255)" }} onClick={() => changeMethod("PUT")}><b>PUT</b></div>
-                                <div style={{ color: "purple" }} onClick={() => changeMethod("PATCH")}><b>PATCH</b></div>
-                                <div style={{ color: "red" }} onClick={() => changeMethod("DELETE")}><b>DELETE</b></div>
-                                <div style={{ color: "yellow" }} onClick={() => changeMethod("OPTIONS")}>OPTIONS</div>
+                <div className="request-bar1">
+                    <div className="method-dropdown" ref={dropdownRef} style={{ color: methodColors[selectedMethod] }}>
+                        <span onClick={showDropdown}><b>{tabs.find(tab => tab.id === activeTab)?.method || selectedMethod}</b></span>
+                        {dropdown && (
+                            <div className="mt-3 method-options" style={{ backgroundColor: "#333", borderRadius: "5px", padding: "5px" }}>
+                                {Object.keys(methodColors).map(method => (
+                                    <div key={method} style={{ color: methodColors[method], padding: "5px", cursor: "pointer" }} onClick={() => changeMethod(method)}><b>{method}</b></div>
+                                ))}
                             </div>
-                        </div>
-
-                        <input type="text" className="input-url" placeholder="Enter request URL" defaultValue="https://echo.hoppscotch.io" />
-                        <button className="send-button">Send</button>
-                        <button className="save-button">    <FontAwesomeIcon icon={faFloppyDisk} /> &nbsp; Save              </button>
+                        )}
                     </div>
+
+                    <input
+                        type="text"
+                        className="input-url"
+                        placeholder="Enter request URL"
+                        value={tabs.find(tab => tab.id === activeTab)?.url || ""}
+                        onChange={(e) => changeURL(e.target.value)}
+                    />
+
+                    <button className="send-button">Send</button>
+                    <button className="save-button">
+                        <FontAwesomeIcon icon={faFloppyDisk} /> &nbsp; Save
+                    </button>
+                </div>
 
                     <div>
             {/* UI Section Tabs */}

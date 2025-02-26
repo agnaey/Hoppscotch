@@ -209,7 +209,7 @@ body {
   display: flex;
   align-items: center;
   background: #1e1e1e;
-  padding: 5px 10px;
+  padding: 5px 15px;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -311,7 +311,7 @@ body {
       }
 
       .method-options {
-          display: none;
+          /* display: none; */
           position: absolute;
           top: 100%;
           left: 0;

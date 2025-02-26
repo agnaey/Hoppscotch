@@ -23,6 +23,7 @@ html, body {
       position: sticky;
       top: 0;
       z-index: 1000;
+      border-bottom: 1px solid #333;
   }
 
   #search {
@@ -98,21 +99,22 @@ body {
 }
 
 .right-panel {
-  background: #222;
+  background: rgb(23,23,23);
   color: white;
   width: 30%;
   min-width: 200px;
 }
 
 .resizer {
-  width: 2px;
+  width: 4px;
   cursor: ew-resize;
-  background: #555;
+  background: #333;
   transition: background 0.2s;
 }
 
 .resizer:hover {
-  background: #777;
+  background: rgb(79, 81, 202);
+  width: 5px;
 }
 
 
@@ -157,7 +159,7 @@ body {
 .sidebar {
   width: 50px;
   height: 100vh;
-  background: #1e1e1e;
+  background: rgb(23,23,23);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -300,7 +302,7 @@ body {
           position: relative;
           cursor: pointer;
           padding: 5px 10px;
-          background-color: #292929;
+          background-color: rgb(30,30,30);
           border-radius: 3px;
       }
 
@@ -337,7 +339,7 @@ body {
           border: none;
           border-radius: 3px;
           outline: none;
-          background-color: #292929;
+          background-color: rgb(30,30,30);
           color: white;
       }
 

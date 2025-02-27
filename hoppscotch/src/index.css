@@ -256,7 +256,6 @@ body {
 
 .tab-content {
   background: rgb(24,24,24);
-  padding: 20px;
   margin-top: 10px;
   color: white;
 }
@@ -372,6 +371,13 @@ body {
           justify-content: flex-start;
       }
 
+
+      
+      .custom-tab:hover{
+        color: white;
+        transition: color 0.3s;
+      }
+
       .custom-tab {
           padding: 8px 15px;
           cursor: pointer;
@@ -442,6 +448,17 @@ body {
       }
 
       #right-main{
-        margin-top: 50%;
         text-align: center;
+      }
+
+
+
+      /* -------parameter--------------------------- */
+
+
+      .parametrs{
+        border-bottom: 1px solid #333;
+        padding-left: 15px;
+        padding-right: 10px;
+
       }

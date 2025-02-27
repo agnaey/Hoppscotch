@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt,faBoxOpen,faEye, faAngleLeft, faFloppyDisk, faFolderPlus,faClock } from "@fortawesome/free-solid-svg-icons";
+import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt,faBoxOpen,faEye, faAngleLeft, faRotateRight ,faFloppyDisk, faFolderPlus,faClock ,faTrash,faEdit,faPlus,faCircleQuestion} from "@fortawesome/free-solid-svg-icons";
 import { faReact } from "@fortawesome/free-brands-svg-icons";
 import emptybox from "../assets/emptybox.png";
 
@@ -171,19 +171,19 @@ const Add = () => {
                                 className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`}
                                 onClick={() => setActiveSection("custom-param")}
                             >
-                                Parameters
+                               <b> Parameters</b>
                             </div>
                             <div
                                 className={`custom-tab ${activeSection === "custom-body" ? "active" : ""}`}
                                 onClick={() => setActiveSection("custom-body")}
                             >
-                                Body
+                              <b>  Body</b>
                             </div>
                             <div
                                 className={`custom-tab ${activeSection === "custom-header" ? "active" : ""}`}
                                 onClick={() => setActiveSection("custom-header")}
                             >
-                                Headers
+                               <b> Headers</b>
                             </div>
                         </div>
 
@@ -194,13 +194,40 @@ const Add = () => {
                                     key={tab.id}
                                     className={`content-panel ${tab.id === activeTab ? "active" : "d-none"}`}
                                 >
-                                    <h2>{tab.title} - Tab {tab.id}</h2>
 
                                     {/* Show content based on activeSection */}
-                                    {activeSection === "custom-param" && <p>Parameters Content for {tab.title}</p>}
-                                    {activeSection === "custom-body" && <p>Body Content for {tab.title} </p>}
-                                    {activeSection === "custom-header" && <p>Headers Content for {tab.title}</p>}
+                                    {activeSection === "custom-param" && 
+                                    <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <span>Query Parameters</span>
+                                        <div style={{display: "flex", gap: "18px"}}>
+                                        <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                                        <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1"  />
+                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1"  />
+                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1"  />
+                                        </div>
+                                    </div>}
+
+
+                                    {activeSection === "custom-body" && 
+                                    <div className="parametrs text-secondary pb-2" style={{ display: "flex", gap: "18px",  }}>
+                                        <span>Content Type</span>
+                                        <span>None ▾</span>
+                                        <span><FontAwesomeIcon icon={faRotateRight } className="reload-icon" style={{cursor: "pointer"}}/>&nbsp;&nbsp;
+                                        Override</span>
+                                    </div>}
+
+                                    {activeSection === "custom-header" &&  <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <span>Header List</span>
+                                        <div style={{display: "flex", gap: "18px"}}>
+                                        <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                                        <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1"  />
+                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1"  />
+                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1"  />
+                                        </div>
+                                    </div>}
                                 </div>
+
+
                             ))}
                         </div>
                     </div>
@@ -232,8 +259,8 @@ const Add = () => {
                     <div className="right-new" style={{ display: "flex", justifyContent: "space-between" }}>
                         <a href="#" className="right-new1">+ New</a>
                         <div style={{display: "flex", gap: "10px"}}>
-                            <span className="question-mark">?</span>
-                            <FontAwesomeIcon className="mt-1" icon={faFolderPlus} />
+                        <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                        <FontAwesomeIcon className="mt-1" icon={faFolderPlus} />
                         </div>
                     </div>
                     <div id="right-main" style={{display: "flex", justifyContent: "center", alignItems: "center"}}>

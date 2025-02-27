@@ -1,17 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt, faAngleLeft,faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
+import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt,faBoxOpen,faEye, faAngleLeft, faFloppyDisk, faFolderPlus,faClock } from "@fortawesome/free-solid-svg-icons";
 import { faReact } from "@fortawesome/free-brands-svg-icons";
-
+import emptybox from "../assets/emptybox.png";
 
 const Add = () => {
     const [selectedMethod, setSelectedMethod] = useState("GET");
-    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET",  url: "https://echo.hoppscotch.io" }]);
+    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io" }]);
     const [activeTab, setActiveTab] = useState(0);
     const [isResizing, setIsResizing] = useState(false);
     const [dropdown, setDropdown] = useState(false);
     const dropdownRef = useRef(null);
-
     const leftPanelRef = useRef(null);
     const rightPanelRef = useRef(null);
     const [activeSection, setActiveSection] = useState("custom-param");
@@ -63,34 +62,35 @@ const Add = () => {
                 rightPanelRef.current.style.width = `${100 - newLeftWidth}%`;
             }
         };
-    
+
         const stopResizing = () => {
             setIsResizing(false);
         };
-    
+
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setDropdown(false);
             }
         };
-    
+      
+
         if (isResizing) {
             document.addEventListener("mousemove", handleResize);
             document.addEventListener("mouseup", stopResizing);
         }
-    
+
         document.addEventListener("mousedown", handleClickOutside);
-    
+
         return () => {
             document.removeEventListener("mousemove", handleResize);
             document.removeEventListener("mouseup", stopResizing);
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isResizing]);
-    
 
 
-    function showdrpdown(){
+
+    function showdrpdown() {
         setdropdown(!dropdown);
     }
 
@@ -106,7 +106,7 @@ const Add = () => {
             {/* Left Panel */}
             <div className="panel left-panel" ref={leftPanelRef}>
                 <div className="request-bar">
-                <div className="left-section">
+                    <div className="left-section">
                         {tabs.map((tab) => (
                             <div key={tab.id} className={`tab ${tab.id === activeTab ? "active" : ""}`}
                                 onClick={() => {
@@ -130,78 +130,80 @@ const Add = () => {
                             <span>Select environment</span>
                             <span className="dropdown-arrow">▾</span>
                         </div>
-                        <div className="eye-icon"><i className="fa-regular fa-eye"></i></div>&nbsp;&nbsp;
+                        <div className="eye-icon text-secondary">
+                            <FontAwesomeIcon icon={faEye} />
+                        </div>&nbsp;&nbsp;
                     </div>
                 </div>
 
                 {/* Request Bar */}
                 <div className="content" id="topContent">
-                <div className="request-bar1">
-                    <div className="method-dropdown" ref={dropdownRef} style={{ color: methodColors[selectedMethod] }}>
-                        <span onClick={showDropdown}><b>{tabs.find(tab => tab.id === activeTab)?.method || selectedMethod}</b></span>
-                        {dropdown && (
-                            <div className="mt-3 method-options" style={{ backgroundColor: "#333", borderRadius: "5px", padding: "5px" }}>
-                                {Object.keys(methodColors).map(method => (
-                                    <div key={method} style={{ color: methodColors[method], padding: "5px", cursor: "pointer" }} onClick={() => changeMethod(method)}><b>{method}</b></div>
-                                ))}
-                            </div>
-                        )}
+                    <div className="request-bar1">
+                        <div className="method-dropdown" ref={dropdownRef} style={{ color: methodColors[selectedMethod] }}>
+                            <span onClick={showDropdown}><b>{tabs.find(tab => tab.id === activeTab)?.method || selectedMethod}</b></span>
+                            {dropdown && (
+                                <div className="mt-3 method-options" style={{ backgroundColor: "#333", borderRadius: "5px", padding: "5px" }}>
+                                    {Object.keys(methodColors).map(method => (
+                                        <div key={method} style={{ color: methodColors[method], padding: "5px", cursor: "pointer" }} onClick={() => changeMethod(method)}><b>{method}</b></div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <input
+                            type="text"
+                            className="input-url"
+                            placeholder="Enter request URL"
+                            value={tabs.find(tab => tab.id === activeTab)?.url || ""}
+                            onChange={(e) => changeURL(e.target.value)}
+                        />
+
+                        <button className="send-button">Send</button>
+                        <button className="save-button">
+                            <FontAwesomeIcon icon={faFloppyDisk} /> &nbsp; Save
+                        </button>
                     </div>
-
-                    <input
-                        type="text"
-                        className="input-url"
-                        placeholder="Enter request URL"
-                        value={tabs.find(tab => tab.id === activeTab)?.url || ""}
-                        onChange={(e) => changeURL(e.target.value)}
-                    />
-
-                    <button className="send-button">Send</button>
-                    <button className="save-button">
-                        <FontAwesomeIcon icon={faFloppyDisk} /> &nbsp; Save
-                    </button>
-                </div>
 
                     <div>
-            {/* UI Section Tabs */}
-            <div className="custom-tab-container">
-                <div
-                    className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`}
-                    onClick={() => setActiveSection("custom-param")}
-                >
-                    Parameters
-                </div>
-                <div
-                    className={`custom-tab ${activeSection === "custom-body" ? "active" : ""}`}
-                    onClick={() => setActiveSection("custom-body")}
-                >
-                    Body
-                </div>
-                <div
-                    className={`custom-tab ${activeSection === "custom-header" ? "active" : ""}`}
-                    onClick={() => setActiveSection("custom-header")}
-                >
-                    Headers
-                </div>
-            </div>
+                        {/* UI Section Tabs */}
+                        <div className="custom-tab-container">
+                            <div
+                                className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`}
+                                onClick={() => setActiveSection("custom-param")}
+                            >
+                                Parameters
+                            </div>
+                            <div
+                                className={`custom-tab ${activeSection === "custom-body" ? "active" : ""}`}
+                                onClick={() => setActiveSection("custom-body")}
+                            >
+                                Body
+                            </div>
+                            <div
+                                className={`custom-tab ${activeSection === "custom-header" ? "active" : ""}`}
+                                onClick={() => setActiveSection("custom-header")}
+                            >
+                                Headers
+                            </div>
+                        </div>
 
-            {/* API Request Tabs Content */}
-            <div className="tab-content">
-                {tabs.map((tab) => (
-                    <div
-                        key={tab.id}
-                        className={`content-panel ${tab.id === activeTab ? "active" : "d-none"}`}
-                    >
-                        <h2>{tab.title} - Tab {tab.id}</h2>
+                        {/* API Request Tabs Content */}
+                        <div className="tab-content">
+                            {tabs.map((tab) => (
+                                <div
+                                    key={tab.id}
+                                    className={`content-panel ${tab.id === activeTab ? "active" : "d-none"}`}
+                                >
+                                    <h2>{tab.title} - Tab {tab.id}</h2>
 
-                        {/* Show content based on activeSection */}
-                        {activeSection === "custom-param" && <p>Parameters Content for {tab.title}</p>}
-                        {activeSection === "custom-body" && <p>Body Content for {tab.title} </p>}
-                        {activeSection === "custom-header" && <p>Headers Content for {tab.title}</p>}
+                                    {/* Show content based on activeSection */}
+                                    {activeSection === "custom-param" && <p>Parameters Content for {tab.title}</p>}
+                                    {activeSection === "custom-body" && <p>Body Content for {tab.title} </p>}
+                                    {activeSection === "custom-header" && <p>Headers Content for {tab.title}</p>}
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                ))}
-            </div>
-        </div>
                 </div>
             </div>
 
@@ -213,15 +215,40 @@ const Add = () => {
             <div className="sidebar d-none d-lg-block">
                 <a href="#" className="sidebar-item active"><FontAwesomeIcon icon={faFolder} /></a>
                 <a href="#" className="sidebar-item"><FontAwesomeIcon icon={faLayerGroup} /></a>
+                <a href="#" className="sidebar-item"><FontAwesomeIcon icon={faClock} /></a>
                 <a href="#" className="sidebar-item"><FontAwesomeIcon icon={faShareAlt} /></a>
                 <a href="#" className="sidebar-item"><FontAwesomeIcon icon={faAngleLeft} /></a>
             </div>
 
             {/* Right Panel */}
             <div ref={rightPanelRef} className="panel right-panel d-none d-lg-block">
-                <div className="content">
-                    <h2>Collections</h2>
-                    <p>Manage your saved requests here.</p>
+                <div className="content text-secondary" >
+                    <div id="righttop">
+                        <p className="text-secondary">Personal Workspace &gt; Requests</p>
+                    </div>
+                    <div id="right-search">
+                        <input className="r-search w-100" type="text" placeholder="Search" />
+                    </div>
+                    <div className="right-new" style={{ display: "flex", justifyContent: "space-between" }}>
+                        <a href="#" className="right-new1">+ New</a>
+                        <div style={{display: "flex", gap: "10px"}}>
+                            <span className="question-mark">?</span>
+                            <FontAwesomeIcon className="mt-1" icon={faFolderPlus} />
+                        </div>
+                    </div>
+                    <div id="right-main" style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                        <div style={{textAlign: "center"}}>
+                            {/* <FontAwesomeIcon icon={faBoxOpen} size="5x" style={{margin: "20px auto"}} /> */}
+                            <img src={emptybox} alt="Empty Box" size="5x" style={{margin: "20px auto"}}/>
+                            <h4>Collections are empty</h4>
+                            <p>Import or create a collection</p>
+                            <button className="send-button mt-1">
+                                <FontAwesomeIcon icon={faFolderPlus} /> Import
+                            </button>
+                            <br />
+                            <button className="save-button mt-3">+ Add New</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

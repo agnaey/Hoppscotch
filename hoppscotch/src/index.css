@@ -462,3 +462,28 @@ body {
         padding-right: 10px;
 
       }
+      .param-form input{
+        height: 30px;
+        padding-left: 10px;
+        background-color: rgb(23,23,23);
+        border: #333;
+        color: grey;
+        border-bottom: 1px solid #333;
+        border-right: 1px solid #333;
+
+      }
+      .param-form input[type="checkbox"] {
+        accent-color: green; /* Default checkbox color */
+        border: 1px solid #333;
+        border-radius: 100%;
+        cursor: pointer;
+
+    }
+    
+    .param-form input[type="checkbox"]:not(:checked) {
+        background-color: green;
+    }
+    .para-delete{
+      color: red;
+      cursor: pointer;
+    }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt,faBoxOpen,faEye, faAngleLeft, faRotateRight ,faFloppyDisk, faFolderPlus,faClock ,faTrash,faEdit,faPlus,faCircleQuestion} from "@fortawesome/free-solid-svg-icons";
+import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt, faBoxOpen, faEye, faAngleLeft, faRotateRight, faFloppyDisk, faFolderPlus, faClock, faTrash, faEdit, faPlus, faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { faReact } from "@fortawesome/free-brands-svg-icons";
 import emptybox from "../assets/emptybox.png";
 
@@ -49,6 +49,32 @@ const Add = () => {
         }
     };
 
+
+    const [params, setParams] = useState([{ id: Date.now(), key: "", value: "", description: "", checked: false }]);
+    const handleInputChange = (id, field, value) => {
+            setParams((prev) => {
+                const updatedParams = prev.map((param) =>
+                    param.id === id ? { ...param, [field]: value } : param
+                );
+                if (field === "key" && value.trim() !== "" && id === prev[prev.length - 1].id) {
+                    updatedParams.push({ id: Date.now(), key: "", value: "", description: "", checked: false });
+                }
+                return updatedParams;
+            });
+        };
+        const addRow = () => {
+            setParams((prev) => [...prev, { id: Date.now(), key: "", value: "", description: "", checked: false }]);
+        };
+    
+        const removeRow = (id) => {
+            setParams((prev) => prev.filter((param) => param.id !== id));
+        };
+    
+        const removeAllRows = () => {
+            setParams([]);  // Clears all parameters
+        };
+
+
     const showDropdown = () => {
         setDropdown((prev) => !prev);
     };
@@ -72,7 +98,7 @@ const Add = () => {
                 setDropdown(false);
             }
         };
-      
+
 
         if (isResizing) {
             document.addEventListener("mousemove", handleResize);
@@ -171,19 +197,19 @@ const Add = () => {
                                 className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`}
                                 onClick={() => setActiveSection("custom-param")}
                             >
-                               <b> Parameters</b>
+                                <b> Parameters</b>
                             </div>
                             <div
                                 className={`custom-tab ${activeSection === "custom-body" ? "active" : ""}`}
                                 onClick={() => setActiveSection("custom-body")}
                             >
-                              <b>  Body</b>
+                                <b>  Body</b>
                             </div>
                             <div
                                 className={`custom-tab ${activeSection === "custom-header" ? "active" : ""}`}
                                 onClick={() => setActiveSection("custom-header")}
                             >
-                               <b> Headers</b>
+                                <b> Headers</b>
                             </div>
                         </div>
 
@@ -196,33 +222,92 @@ const Add = () => {
                                 >
 
                                     {/* Show content based on activeSection */}
-                                    {activeSection === "custom-param" && 
+                                    {activeSection === "custom-param" &&
+                                    <div>
                                     <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
                                         <span>Query Parameters</span>
-                                        <div style={{display: "flex", gap: "18px"}}>
-                                        <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
-                                        <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1"  />
-                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1"  />
-                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1"  />
+                                        <div style={{ display: "flex", gap: "18px" }}>
+                                            <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                                            <FontAwesomeIcon
+                                                icon={faTrash}
+                                                className="delete-icon mt-1"
+                                                style={{ cursor: "pointer" }}
+                                                onClick={removeAllRows}
+                                            />
+                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1" />
+                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" style={{ cursor: "pointer" }} onClick={addRow} />
                                         </div>
-                                    </div>}
+                                    </div>
+                        
+                                    {params.length > 0 ? (
+                                        params.map((param) => (
+                                            <div 
+                                            className="parametrs" 
+                                            key={param.id} 
+                                            style={{ display: "flex", gap: "10px", alignItems: "center", overflowX: "auto" }}
+                                        >
+                                            <form 
+                                                className="param-form w-100" 
+                                                style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "nowrap" }}
+                                            >
+                                                <input
+                                                    type="text"
+                                                    placeholder="Key"
+                                                    style={{ flex: "1", minWidth: "120px" }}  // Prevents shrinking
+                                                    value={param.key}
+                                                    onChange={(e) => handleInputChange(param.id, "key", e.target.value)}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Value"
+                                                    style={{ flex: "1", minWidth: "120px" }}
+                                                    value={param.value}
+                                                    onChange={(e) => handleInputChange(param.id, "value", e.target.value)}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Description"
+                                                    style={{ flex: "1", minWidth: "150px" }}
+                                                    value={param.description}
+                                                    onChange={(e) => handleInputChange(param.id, "description", e.target.value)}
+                                                />
+                                                <input
+                                                    type="checkbox"
+                                                    checked={param.checked}
+                                                    onChange={(e) => handleInputChange(param.id, "checked", e.target.checked)}
+                                                />
+                                                <FontAwesomeIcon
+                                                    icon={faTrash}
+                                                    className="para-delete delete-icon mt-1"
+                                                    style={{ cursor: "pointer" }}
+                                                    onClick={() => removeRow(param.id)}
+                                                />
+                                            </form>
+                                        </div>
+                                        
+                                        ))
+                                    ) : (
+                                        <p></p>
+                                    )}
+                                </div>
+                                    }
 
 
-                                    {activeSection === "custom-body" && 
-                                    <div className="parametrs text-secondary pb-2" style={{ display: "flex", gap: "18px",  }}>
-                                        <span>Content Type</span>
-                                        <span>None ▾</span>
-                                        <span><FontAwesomeIcon icon={faRotateRight } className="reload-icon" style={{cursor: "pointer"}}/>&nbsp;&nbsp;
-                                        Override</span>
-                                    </div>}
+                                    {activeSection === "custom-body" &&
+                                        <div className="parametrs text-secondary pb-2" style={{ display: "flex", gap: "18px", }}>
+                                            <span>Content Type</span>
+                                            <span>None ▾</span>
+                                            <span><FontAwesomeIcon icon={faRotateRight} className="reload-icon" style={{ cursor: "pointer" }} />&nbsp;&nbsp;
+                                                Override</span>
+                                        </div>}
 
-                                    {activeSection === "custom-header" &&  <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
+                                    {activeSection === "custom-header" && <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
                                         <span>Header List</span>
-                                        <div style={{display: "flex", gap: "18px"}}>
-                                        <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
-                                        <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1"  />
-                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1"  />
-                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1"  />
+                                        <div style={{ display: "flex", gap: "18px" }}>
+                                            <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                                            <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1" />
+                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1" />
+                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" />
                                         </div>
                                     </div>}
                                 </div>
@@ -258,15 +343,15 @@ const Add = () => {
                     </div>
                     <div className="right-new" style={{ display: "flex", justifyContent: "space-between" }}>
                         <a href="#" className="right-new1">+ New</a>
-                        <div style={{display: "flex", gap: "10px"}}>
-                        <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
-                        <FontAwesomeIcon className="mt-1" icon={faFolderPlus} />
+                        <div style={{ display: "flex", gap: "10px" }}>
+                            <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                            <FontAwesomeIcon className="mt-1" icon={faFolderPlus} />
                         </div>
                     </div>
-                    <div id="right-main" style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                        <div style={{textAlign: "center"}}>
+                    <div id="right-main" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <div style={{ textAlign: "center" }}>
                             {/* <FontAwesomeIcon icon={faBoxOpen} size="5x" style={{margin: "20px auto"}} /> */}
-                            <img src={emptybox} alt="Empty Box" size="5x" style={{margin: "20px auto"}}/>
+                            <img src={emptybox} alt="Empty Box" size="5x" style={{ margin: "20px auto" }} />
                             <h4>Collections are empty</h4>
                             <p>Import or create a collection</p>
                             <button className="send-button mt-1">

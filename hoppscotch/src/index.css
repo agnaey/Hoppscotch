@@ -362,6 +362,38 @@ body {
           cursor: pointer;
           color: grey;
       }
+      .custom1-panel{
+        height: 40vh;
+        overflow-y: auto; 
+        scrollbar-width: thin; 
+        scrollbar-color: rgb(66, 65, 65) #222222;       }
+
+      .content-panel {
+        height: 34vh;
+        overflow-y: auto; 
+        scrollbar-width: thin; 
+        scrollbar-color: rgb(66, 65, 65) #222222; 
+      }
+      
+      /* For Webkit browsers (Chrome, Edge, Safari) */
+      .custom::-webkit-scrollbar {
+        width: 18px; /* Width of the scrollbar */
+      }
+      
+     
+      
+      .custom::-webkit-scrollbar-thumb {
+        background: black; /* Scrollbar color */
+        border-radius: 4px;
+      }
+      
+      .custom::-webkit-scrollbar-thumb:hover {
+        background: #333; /* Dark gray on hover */
+      }
+      .code{
+        height: 100%;
+      }
+      
 
       .custom-tab-container {
           display: flex;
@@ -487,3 +519,64 @@ body {
       color: red;
       cursor: pointer;
     }
+
+
+
+    /* --------------------------------------------------- */
+
+.custom1{
+  height: 50vh;
+}
+
+    .custom1-tab-container {
+      display: flex;
+      gap: 20px;
+      border-bottom: 2px solid #333;
+      width: 100%;
+      
+      justify-content: flex-start;
+  }
+
+
+  
+  .custom1-tab:hover{
+    color: white;
+    transition: color 0.3s;
+  }
+
+  .custom1-tab {
+      padding: 8px 15px;
+      cursor: pointer;
+      color: #bbb;
+      position: relative;
+  }
+
+  .custom1-tab.active {
+      color: white;
+      font-weight: bold;
+  }
+
+  .custom1-tab.active::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #6a5acd;
+  }
+
+  .custom1-content-panel {
+      display: none;
+      padding: 20px;
+      width: 600px;
+      background-color: #2a2a2a;
+      margin-top: 10px;
+      border-radius: 5px;
+  }
+
+  .custom1-content-panel.active {
+      display: block;
+  }
+
+

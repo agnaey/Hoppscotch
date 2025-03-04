@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt, faBoxOpen, faEye, faAngleLeft, faRotateRight, faFloppyDisk, faFolderPlus, faClock, faTrash, faEdit, faPlus, faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
+import { faLink, faGlobe, faCog, faFolder, faLayerGroup, faShareAlt, faBoxOpen, faEye, faAngleLeft, faBars, faFilter, faDownload, faCopy, faRotateRight, faFloppyDisk, faFolderPlus, faClock, faTrash, faEdit, faPlus, faCircleQuestion, faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { faReact } from "@fortawesome/free-brands-svg-icons";
 import emptybox from "../assets/emptybox.png";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Add = () => {
     const [selectedMethod, setSelectedMethod] = useState("GET");
@@ -14,6 +16,49 @@ const Add = () => {
     const leftPanelRef = useRef(null);
     const rightPanelRef = useRef(null);
     const [activeSection, setActiveSection] = useState("custom-param");
+    const [activeSection1, setActiveSection1] = useState("custom1-param");
+
+    const JsonViewer = ({ json, whiteText = false }) => {
+        return (
+          <SyntaxHighlighter
+            language="json"
+            style={whiteText ? {} : dracula} // Remove styles for plain white text
+            showLineNumbers
+            customStyle={whiteText ? { color: "white", background: "transparent" } : {}}
+          >
+            {JSON.stringify(json, null, 2)}
+          </SyntaxHighlighter>
+        );
+      };
+    const jsonResponse = {
+        "method": "PATCH",
+        "args": {},
+        "data": "",
+        "headers": {
+            "accept-encoding": "gzip",
+            "authorzxcization": "asdzxc",
+            "cdn-loop": "netlify",
+            "content-length": "0",
+            "host": "echo.hoppscotch.io",
+            "netlify-invocation-source": "client",
+            "user-agent": "Proxyscotch/1.1",
+            "x-country": "US",
+            "x-forwarded-for": "169.254.169.126:49078, 2600:1900:0:2d07::901",
+            "x-forwarded-proto": "https",
+            "x-nf-account-id": "5e2b91527eb7a24fb0054390",
+            "x-nf-account-tier": "account_type_pro",
+            "x-nf-client-connection-ip": "2600:1900:0:2d07::901",
+            "x-nf-deploy-context": "production",
+            "x-nf-deploy-id": "626b1bc6a7f6c1000902602e",
+            "x-nf-deploy-published": "1",
+            "x-nf-request-id": "01JNG9ZP3GKD8PMYGE7ZKX82K9",
+            "x-nf-site-id": "5d797a9d-fe11-4582-8837-9986a4673158",
+            "zxc": ""
+        },
+        "path": "/",
+        "isBase64Encoded": false
+    }
+
     const methodColors = {
         GET: "green",
         POST: "orange",
@@ -25,8 +70,8 @@ const Add = () => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
         );
-        setSelectedMethod(method); // Update displayed method
-        setDropdown(false); // Close dropdown
+        setSelectedMethod(method);
+        setDropdown(false); 
     };
     const changeURL = (newURL) => {
         setTabs((prevTabs) =>
@@ -38,7 +83,7 @@ const Add = () => {
         const newTab = { id: Date.now(), title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io" };
         setTabs([...tabs, newTab]);
         setActiveTab(newTab.id);
-        setSelectedMethod("GET"); // Reset method for new tab
+        setSelectedMethod("GET");
     };
 
     const removeTab = (id) => {
@@ -52,27 +97,27 @@ const Add = () => {
 
     const [params, setParams] = useState([{ id: Date.now(), key: "", value: "", description: "", checked: false }]);
     const handleInputChange = (id, field, value) => {
-            setParams((prev) => {
-                const updatedParams = prev.map((param) =>
-                    param.id === id ? { ...param, [field]: value } : param
-                );
-                if (field === "key" && value.trim() !== "" && id === prev[prev.length - 1].id) {
-                    updatedParams.push({ id: Date.now(), key: "", value: "", description: "", checked: false });
-                }
-                return updatedParams;
-            });
-        };
-        const addRow = () => {
-            setParams((prev) => [...prev, { id: Date.now(), key: "", value: "", description: "", checked: false }]);
-        };
-    
-        const removeRow = (id) => {
-            setParams((prev) => prev.filter((param) => param.id !== id));
-        };
-    
-        const removeAllRows = () => {
-            setParams([]);  // Clears all parameters
-        };
+        setParams((prev) => {
+            const updatedParams = prev.map((param) =>
+                param.id === id ? { ...param, [field]: value } : param
+            );
+            if (field === "key" && value.trim() !== "" && id === prev[prev.length - 1].id) {
+                updatedParams.push({ id: Date.now(), key: "", value: "", description: "", checked: false });
+            }
+            return updatedParams;
+        });
+    };
+    const addRow = () => {
+        setParams((prev) => [...prev, { id: Date.now(), key: "", value: "", description: "", checked: false }]);
+    };
+
+    const removeRow = (id) => {
+        setParams((prev) => prev.filter((param) => param.id !== id));
+    };
+
+    const removeAllRows = () => {
+        setParams([]);  // Clears all parameters
+    };
 
 
     const showDropdown = () => {
@@ -100,6 +145,7 @@ const Add = () => {
         };
 
 
+
         if (isResizing) {
             document.addEventListener("mousemove", handleResize);
             document.addEventListener("mouseup", stopResizing);
@@ -114,6 +160,27 @@ const Add = () => {
         };
     }, [isResizing]);
 
+    const [headers, setHeaders] = useState([]); // Header state
+
+    const handleHeaderChange = (id, field, value) => {
+        setHeaders((prevHeaders) =>
+            prevHeaders.map((header) =>
+                header.id === id ? { ...header, [field]: value } : header
+            )
+        );
+    };
+
+    const addHeaderRow = () => {
+        setHeaders([...headers, { id: Date.now(), key: "", value: "", description: "", checked: false }]);
+    };
+
+    const removeHeaderRow = (id) => {
+        setHeaders(headers.filter((header) => header.id !== id));
+    };
+
+    const removeAllHeaders = () => {
+        setHeaders([]);
+    };
 
 
     function showdrpdown() {
@@ -189,139 +256,197 @@ const Add = () => {
                             <FontAwesomeIcon icon={faFloppyDisk} /> &nbsp; Save
                         </button>
                     </div>
-
-                    <div>
+                    <div className="custom">
                         {/* UI Section Tabs */}
                         <div className="custom-tab-container">
-                            <div
-                                className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`}
-                                onClick={() => setActiveSection("custom-param")}
-                            >
-                                <b> Parameters</b>
+                            <div className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`} onClick={() => setActiveSection("custom-param")}>
+                                <b>Parameters</b>
                             </div>
-                            <div
-                                className={`custom-tab ${activeSection === "custom-body" ? "active" : ""}`}
-                                onClick={() => setActiveSection("custom-body")}
-                            >
-                                <b>  Body</b>
+                            <div className={`custom-tab ${activeSection === "custom-body" ? "active" : ""}`} onClick={() => setActiveSection("custom-body")}>
+                                <b>Body</b>
                             </div>
-                            <div
-                                className={`custom-tab ${activeSection === "custom-header" ? "active" : ""}`}
-                                onClick={() => setActiveSection("custom-header")}
-                            >
-                                <b> Headers</b>
+                            <div className={`custom-tab ${activeSection === "custom-header" ? "active" : ""}`} onClick={() => setActiveSection("custom-header")}>
+                                <b>Headers</b>
                             </div>
                         </div>
 
                         {/* API Request Tabs Content */}
                         <div className="tab-content">
                             {tabs.map((tab) => (
-                                <div
-                                    key={tab.id}
-                                    className={`content-panel ${tab.id === activeTab ? "active" : "d-none"}`}
-                                >
+                                <div key={tab.id} className={`content-panel ${tab.id === activeTab ? "active" : "d-none"}`}>
 
-                                    {/* Show content based on activeSection */}
-                                    {activeSection === "custom-param" &&
-                                    <div>
-                                    <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
-                                        <span>Query Parameters</span>
-                                        <div style={{ display: "flex", gap: "18px" }}>
-                                            <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
-                                            <FontAwesomeIcon
-                                                icon={faTrash}
-                                                className="delete-icon mt-1"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={removeAllRows}
-                                            />
-                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1" />
-                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" style={{ cursor: "pointer" }} onClick={addRow} />
+                                    {/* Query Parameters Section */}
+                                    {activeSection === "custom-param" && (
+                                        <div>
+                                            <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
+                                                <span>Query Parameters</span>
+                                                <div style={{ display: "flex", gap: "18px" }}>
+                                                    <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                                                    <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1" style={{ cursor: "pointer" }} onClick={removeAllRows} />
+                                                    <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1" />
+                                                    <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" style={{ cursor: "pointer" }} onClick={addRow} />
+                                                </div>
+                                            </div>
+
+                                            {params.length > 0 ? (
+                                                params.map((param) => (
+                                                    <div className="parametrs" key={param.id} style={{ display: "flex", gap: "10px", alignItems: "center", overflowX: "auto" }}>
+                                                        <form className="param-form w-100" style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "nowrap" }}>
+                                                            <input type="text" placeholder="Key" style={{ flex: "1", minWidth: "120px" }} value={param.key} onChange={(e) => handleInputChange(param.id, "key", e.target.value)} />
+                                                            <input type="text" placeholder="Value" style={{ flex: "1", minWidth: "120px" }} value={param.value} onChange={(e) => handleInputChange(param.id, "value", e.target.value)} />
+                                                            <input type="text" placeholder="Description" style={{ flex: "1", minWidth: "150px" }} value={param.description} onChange={(e) => handleInputChange(param.id, "description", e.target.value)} />
+                                                            <input type="checkbox" checked={param.checked} onChange={(e) => handleInputChange(param.id, "checked", e.target.checked)} />
+                                                            <FontAwesomeIcon icon={faTrash} className="para-delete delete-icon mt-1" style={{ cursor: "pointer" }} onClick={() => removeRow(param.id)} />
+                                                        </form>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p></p>
+                                            )}
                                         </div>
-                                    </div>
-                        
-                                    {params.length > 0 ? (
-                                        params.map((param) => (
-                                            <div 
-                                            className="parametrs" 
-                                            key={param.id} 
-                                            style={{ display: "flex", gap: "10px", alignItems: "center", overflowX: "auto" }}
-                                        >
-                                            <form 
-                                                className="param-form w-100" 
-                                                style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "nowrap" }}
-                                            >
-                                                <input
-                                                    type="text"
-                                                    placeholder="Key"
-                                                    style={{ flex: "1", minWidth: "120px" }}  // Prevents shrinking
-                                                    value={param.key}
-                                                    onChange={(e) => handleInputChange(param.id, "key", e.target.value)}
-                                                />
-                                                <input
-                                                    type="text"
-                                                    placeholder="Value"
-                                                    style={{ flex: "1", minWidth: "120px" }}
-                                                    value={param.value}
-                                                    onChange={(e) => handleInputChange(param.id, "value", e.target.value)}
-                                                />
-                                                <input
-                                                    type="text"
-                                                    placeholder="Description"
-                                                    style={{ flex: "1", minWidth: "150px" }}
-                                                    value={param.description}
-                                                    onChange={(e) => handleInputChange(param.id, "description", e.target.value)}
-                                                />
-                                                <input
-                                                    type="checkbox"
-                                                    checked={param.checked}
-                                                    onChange={(e) => handleInputChange(param.id, "checked", e.target.checked)}
-                                                />
-                                                <FontAwesomeIcon
-                                                    icon={faTrash}
-                                                    className="para-delete delete-icon mt-1"
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => removeRow(param.id)}
-                                                />
-                                            </form>
-                                        </div>
-                                        
-                                        ))
-                                    ) : (
-                                        <p></p>
                                     )}
-                                </div>
-                                    }
 
+                                    {/* Headers Section (Same as Parameters) */}
+                                    {activeSection === "custom-header" && (
+                                        <div>
+                                            <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
+                                                <span>Header List</span>
+                                                <div style={{ display: "flex", gap: "18px" }}>
+                                                    <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
+                                                    <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1" style={{ cursor: "pointer" }} onClick={removeAllHeaders} />
+                                                    <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1" />
+                                                    <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" style={{ cursor: "pointer" }} onClick={addHeaderRow} />
+                                                </div>
+                                            </div>
 
-                                    {activeSection === "custom-body" &&
-                                        <div className="parametrs text-secondary pb-2" style={{ display: "flex", gap: "18px", }}>
+                                            {headers.length > 0 ? (
+                                                headers.map((header) => (
+                                                    <div className="parametrs" key={header.id} style={{ display: "flex", gap: "10px", alignItems: "center", overflowX: "auto" }}>
+                                                        <form className="param-form w-100" style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "nowrap" }}>
+                                                            <input type="text" placeholder="Key" style={{ flex: "1", minWidth: "120px" }} value={header.key} onChange={(e) => handleHeaderChange(header.id, "key", e.target.value)} />
+                                                            <input type="text" placeholder="Value" style={{ flex: "1", minWidth: "120px" }} value={header.value} onChange={(e) => handleHeaderChange(header.id, "value", e.target.value)} />
+                                                            <input type="text" placeholder="Description" style={{ flex: "1", minWidth: "150px" }} value={header.description} onChange={(e) => handleHeaderChange(header.id, "description", e.target.value)} />
+                                                            <input type="checkbox" checked={header.checked} onChange={(e) => handleHeaderChange(header.id, "checked", e.target.checked)} />
+                                                            <FontAwesomeIcon icon={faTrash} className="para-delete delete-icon mt-1" style={{ cursor: "pointer" }} onClick={() => removeHeaderRow(header.id)} />
+                                                        </form>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p></p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Request Body Section */}
+                                    {activeSection === "custom-body" && (
+                                        <div className="parametrs text-secondary pb-2" style={{ display: "flex", gap: "18px" }}>
                                             <span>Content Type</span>
                                             <span>None ▾</span>
-                                            <span><FontAwesomeIcon icon={faRotateRight} className="reload-icon" style={{ cursor: "pointer" }} />&nbsp;&nbsp;
-                                                Override</span>
-                                        </div>}
-
-                                    {activeSection === "custom-header" && <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
-                                        <span>Header List</span>
-                                        <div style={{ display: "flex", gap: "18px" }}>
-                                            <FontAwesomeIcon className="mt-1" icon={faCircleQuestion} />
-                                            <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1" />
-                                            <FontAwesomeIcon icon={faEdit} className="edit-icon mt-1" />
-                                            <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" />
+                                            <span>
+                                                <FontAwesomeIcon icon={faRotateRight} className="reload-icon" style={{ cursor: "pointer" }} />
+                                                &nbsp;&nbsp; Override
+                                            </span>
                                         </div>
-                                    </div>}
+                                    )}
                                 </div>
-
-
                             ))}
                         </div>
                     </div>
+                    {/* ------------------------------------------------------------------------------------------------ */}
+
+
+                    <div className="custom1">
+                        {/* Tabs */}
+                        <div className="custom1-tab-container">
+                            <div
+                                className={`custom1-tab ${activeSection1 === "custom1-param" ? "active" : ""}`}
+                                onClick={() => setActiveSection1("custom1-param")}
+                            >
+                                <b>JSON</b>
+                            </div>
+                            <div
+                                className={`custom1-tab ${activeSection1 === "custom1-body" ? "active" : ""}`}
+                                onClick={() => setActiveSection1("custom1-body")}
+                            >
+                                <b>Raw</b>
+                            </div>
+                            <div
+                                className={`custom1-tab ${activeSection1 === "custom1-header" ? "active" : ""}`}
+                                onClick={() => setActiveSection1("custom1-header")}
+                            >
+                                <b>Headers</b>
+                            </div>
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="custom1-panel">
+                            {activeSection1 === "custom1-param" && (
+                                <div >
+                                    <div className="parametrs text-secondary pb-2 mt-1" style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <span><b>Response Body</b></span>
+                                        <div style={{ display: "flex", gap: "18px" }}>
+                                            <FontAwesomeIcon icon={faBars} className="menu-icon text-xl mt-1" />
+                                            <FontAwesomeIcon icon={faFilter} className="filter-icon mt-1" />
+                                            <FontAwesomeIcon icon={faDownload} className="copy-icon mt-1" />
+                                            <FontAwesomeIcon icon={faFloppyDisk} className="edit-icon mt-1" />
+                                            <FontAwesomeIcon icon={faCopy} className="copy-icon mt-1" />
+
+
+                                            <FontAwesomeIcon icon={faEllipsisVertical} className="three-dot-icon mt-1" style={{ cursor: "pointer", transform: "rotate(90deg)" }} />
+                                        </div>
+
+                                    </div>
+                                    <div className="code p-4 w-100">
+                                        <JsonViewer json={jsonResponse} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeSection1 === "custom1-body" && (
+                             <div>
+                                   <div className="parametrs text-secondary pb-2 mt-1" style={{ display: "flex", justifyContent: "space-between" }}>
+                                    <span><b>Response Body</b></span>
+                                    <div style={{ display: "flex", gap: "18px" }}>
+                                        <FontAwesomeIcon icon={faBars} className="menu-icon text-xl mt-1" />
+                                        <FontAwesomeIcon icon={faDownload} className="copy-icon mt-1" />
+                                        <FontAwesomeIcon icon={faFloppyDisk} className="edit-icon mt-1" />
+                                        <FontAwesomeIcon icon={faCopy} className="copy-icon mt-1" />
+
+
+                                    </div>
+                                </div>
+                                <div className="code text-white p-4 w-100">
+                                        <JsonViewer json={jsonResponse} whiteText={true} />
+                                    </div>
+                             </div>
+                            )}
+
+                            {activeSection1 === "custom1-header" && (
+                                <div className="parametrs text-secondary pb-2 mt-1" style={{ display: "flex", justifyContent: "space-between" }}>
+                                    <span><b>Header List</b></span>
+                                    <div style={{ display: "flex", gap: "18px" }}>
+                                        <FontAwesomeIcon icon={faCopy} className="copy-icon mt-1" />
+
+
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
 
-            {/* Resizer */}
-            <div className="resizer d-none d-lg-block" onMouseDown={() => setIsResizing(true)} />
 
+
+
+
+
+
+            {/* -----------------------------------------------------------------------------------------------------------------/ */}
+            <div className="resizer d-none d-lg-block" onMouseDown={() => setIsResizing(true)} />
+            {/* -----------------------------------------------------------------------------------------------------------------/ */}
 
             {/* Right Sidebar */}
             <div className="sidebar d-none d-lg-block">

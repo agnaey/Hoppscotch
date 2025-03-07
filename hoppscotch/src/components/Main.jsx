@@ -17,46 +17,67 @@ const Add = () => {
     const rightPanelRef = useRef(null);
     const [activeSection, setActiveSection] = useState("custom-param");
     const [activeSection1, setActiveSection1] = useState("custom1-param");
+    const [response, setResponse] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    // Function to send API request
+    const fetchAPI = async () => {
+        const activeTabData = tabs.find(tab => tab.id === activeTab);
+        if (!activeTabData || !activeTabData.url) {
+            setError("Please enter a valid API URL.");
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+        setResponse(null);
+
+        try {
+            const options = {
+                method: activeTabData.method,
+                headers: { "Content-Type": "application/json" },
+            };
+
+            // Add body for POST/PUT requests
+            if (["POST", "PUT", "PATCH"].includes(activeTabData.method)) {
+                options.body = JSON.stringify({
+                    key1: "value1",
+                    key2: "value2",
+                });
+            }
+
+            const res = await fetch(activeTabData.url, options);
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+            setResponse(data);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
 
     const JsonViewer = ({ json, whiteText = false }) => {
         return (
-          <SyntaxHighlighter
-            language="json"
-            style={whiteText ? {} : dracula} // Remove styles for plain white text
-            showLineNumbers
-            customStyle={whiteText ? { color: "white", background: "transparent" } : {}}
-          >
-            {JSON.stringify(json, null, 2)}
-          </SyntaxHighlighter>
+            <SyntaxHighlighter
+                language="json"
+                style={whiteText ? {} : dracula} // Remove styles for plain white text
+                showLineNumbers
+                customStyle={whiteText ? { color: "white", background: "transparent" } : {}}
+            >
+                {JSON.stringify(json, null, 2)}
+            </SyntaxHighlighter>
         );
-      };
+    };
     const jsonResponse = {
-        "method": "PATCH",
-        "args": {},
-        "data": "",
-        "headers": {
-            "accept-encoding": "gzip",
-            "authorzxcization": "asdzxc",
-            "cdn-loop": "netlify",
-            "content-length": "0",
-            "host": "echo.hoppscotch.io",
-            "netlify-invocation-source": "client",
-            "user-agent": "Proxyscotch/1.1",
-            "x-country": "US",
-            "x-forwarded-for": "169.254.169.126:49078, 2600:1900:0:2d07::901",
-            "x-forwarded-proto": "https",
-            "x-nf-account-id": "5e2b91527eb7a24fb0054390",
-            "x-nf-account-tier": "account_type_pro",
-            "x-nf-client-connection-ip": "2600:1900:0:2d07::901",
-            "x-nf-deploy-context": "production",
-            "x-nf-deploy-id": "626b1bc6a7f6c1000902602e",
-            "x-nf-deploy-published": "1",
-            "x-nf-request-id": "01JNG9ZP3GKD8PMYGE7ZKX82K9",
-            "x-nf-site-id": "5d797a9d-fe11-4582-8837-9986a4673158",
-            "zxc": ""
-        },
-        "path": "/",
-        "isBase64Encoded": false
+        "name": "John Doe",
+        "age": 30,
+        "city": "New York"
     }
 
     const methodColors = {
@@ -71,7 +92,7 @@ const Add = () => {
             prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
         );
         setSelectedMethod(method);
-        setDropdown(false); 
+        setDropdown(false);
     };
     const changeURL = (newURL) => {
         setTabs((prevTabs) =>
@@ -143,6 +164,7 @@ const Add = () => {
                 setDropdown(false);
             }
         };
+
 
 
 
@@ -251,7 +273,11 @@ const Add = () => {
                             onChange={(e) => changeURL(e.target.value)}
                         />
 
-                        <button className="send-button">Send</button>
+                        <button className="send-button" onClick={fetchAPI} disabled={loading}>
+                            {loading ? "Fetching..." : "Send"}
+                        </button>
+
+
                         <button className="save-button">
                             <FontAwesomeIcon icon={faFloppyDisk} /> &nbsp; Save
                         </button>
@@ -259,6 +285,7 @@ const Add = () => {
                     <div className="custom">
                         {/* UI Section Tabs */}
                         <div className="custom-tab-container">
+
                             <div className={`custom-tab ${activeSection === "custom-param" ? "active" : ""}`} onClick={() => setActiveSection("custom-param")}>
                                 <b>Parameters</b>
                             </div>
@@ -397,28 +424,41 @@ const Add = () => {
 
                                     </div>
                                     <div className="code p-4 w-100">
-                                        <JsonViewer json={jsonResponse} />
+                                        {error && <p className="text-red-500 mt-2">{error}</p>}
+
+                                        {loading && <p>Loading...</p>}
+
+                                        {response && (
+                                            <JsonViewer json={response} />
+                                        )}
+
                                     </div>
                                 </div>
                             )}
 
                             {activeSection1 === "custom1-body" && (
-                             <div>
-                                   <div className="parametrs text-secondary pb-2 mt-1" style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <span><b>Response Body</b></span>
-                                    <div style={{ display: "flex", gap: "18px" }}>
-                                        <FontAwesomeIcon icon={faBars} className="menu-icon text-xl mt-1" />
-                                        <FontAwesomeIcon icon={faDownload} className="copy-icon mt-1" />
-                                        <FontAwesomeIcon icon={faFloppyDisk} className="edit-icon mt-1" />
-                                        <FontAwesomeIcon icon={faCopy} className="copy-icon mt-1" />
+                                <div>
+                                    <div className="parametrs text-secondary pb-2 mt-1" style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <span><b>Response Body</b></span>
+                                        <div style={{ display: "flex", gap: "18px" }}>
+                                            <FontAwesomeIcon icon={faBars} className="menu-icon text-xl mt-1" />
+                                            <FontAwesomeIcon icon={faDownload} className="copy-icon mt-1" />
+                                            <FontAwesomeIcon icon={faFloppyDisk} className="edit-icon mt-1" />
+                                            <FontAwesomeIcon icon={faCopy} className="copy-icon mt-1" />
 
 
+                                        </div>
+                                    </div>
+                                    <div className="code text-white p-4 w-100">
+                                        {error && <p className="text-red-500 mt-2">{error}</p>}
+
+                                        {loading && <p>Loading...</p>}
+
+                                        {response && (
+                                                <JsonViewer json={response} whiteText={true} />
+                                        )}
                                     </div>
                                 </div>
-                                <div className="code text-white p-4 w-100">
-                                        <JsonViewer json={jsonResponse} whiteText={true} />
-                                    </div>
-                             </div>
                             )}
 
                             {activeSection1 === "custom1-header" && (
@@ -433,6 +473,7 @@ const Add = () => {
                             )}
                         </div>
                     </div>
+
 
 
                 </div>

@@ -8,7 +8,7 @@ import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Add = () => {
     const [selectedMethod, setSelectedMethod] = useState("GET");
-    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io" }]);
+    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io", params: [{ id: Date.now(), key: "", value: "", description: "", checked: false ,headers: [],}],}]);
     const [activeTab, setActiveTab] = useState(0);
     const [isResizing, setIsResizing] = useState(false);
     const [dropdown, setDropdown] = useState(false);
@@ -20,6 +20,10 @@ const Add = () => {
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const activeTabData = tabs.find((tab) => tab.id === activeTab) || {};
+    const params = activeTabData.params || [];
+    const headers = activeTabData.headers || [];
+    
 
     // Function to send API request
     const fetchAPI = async () => {
@@ -87,13 +91,13 @@ const Add = () => {
         PATCH: "purple",
         DELETE: "red",
     };
-    const changeMethod = (method) => {
-        setTabs((prevTabs) =>
-            prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
-        );
-        setSelectedMethod(method);
-        setDropdown(false);
-    };
+    // const changeMethod = (method) => {
+    //     setTabs((prevTabs) =>
+    //         prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
+    //     );
+    //     setSelectedMethod(method);
+    //     setDropdown(false);
+    // };
     const changeURL = (newURL) => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, url: newURL } : tab))
@@ -101,7 +105,7 @@ const Add = () => {
     };
 
     const addTab = () => {
-        const newTab = { id: Date.now(), title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io" };
+        const newTab = { id: Date.now(), title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io",params: [], headers: [], body: "" };
         setTabs([...tabs, newTab]);
         setActiveTab(newTab.id);
         setSelectedMethod("GET");
@@ -115,30 +119,136 @@ const Add = () => {
         }
     };
 
+    
 
-    const [params, setParams] = useState([{ id: Date.now(), key: "", value: "", description: "", checked: false }]);
     const handleInputChange = (id, field, value) => {
-        setParams((prev) => {
-            const updatedParams = prev.map((param) =>
-                param.id === id ? { ...param, [field]: value } : param
-            );
-            if (field === "key" && value.trim() !== "" && id === prev[prev.length - 1].id) {
-                updatedParams.push({ id: Date.now(), key: "", value: "", description: "", checked: false });
-            }
-            return updatedParams;
-        });
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab
+                    ? {
+                          ...tab,
+                          params: tab.params.map((param) =>
+                              param.id === id ? { ...param, [field]: value } : param
+                          ),
+                      }
+                    : tab
+            )
+        );
+    
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) => {
+                if (tab.id === activeTab) {
+                    const lastParam = tab.params[tab.params.length - 1];
+                    if (lastParam.id === id && field === "key" && value.trim() !== "") {
+                        return {
+                            ...tab,
+                            params: [
+                                ...tab.params,
+                                { id: Date.now(), key: "", value: "", description: "", checked: false },
+                            ],
+                        };
+                    }
+                }
+                return tab;
+            })
+        );
     };
+    
+    
+    const handleHeaderChange = (id, field, value) => {
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab
+                    ? {
+                          ...tab,
+                          headers: tab.headers.map((header) =>
+                              header.id === id ? { ...header, [field]: value } : header
+                          ),
+                      }
+                    : tab
+            )
+        );
+    };
+    
+    
+
     const addRow = () => {
-        setParams((prev) => [...prev, { id: Date.now(), key: "", value: "", description: "", checked: false }]);
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) => {
+                if (tab.id === activeTab) {
+                    return {
+                        ...tab,
+                        params: [
+                            ...tab.params,
+                            { id: Date.now(), key: "", value: "", description: "", checked: false },
+                        ],
+                    };
+                }
+                return tab;
+            })
+        );
     };
+    const addHeaderRow = () => {
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab
+                    ? {
+                          ...tab,
+                          headers: [
+                              ...(tab.headers || []), // Ensure headers is always an array
+                              { id: Date.now(), key: "", value: "", description: "", checked: false },
+                          ],
+                      }
+                    : tab
+            )
+        );
+    };
+    
+    
 
     const removeRow = (id) => {
-        setParams((prev) => prev.filter((param) => param.id !== id));
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab
+                    ? {
+                          ...tab,
+                          params: tab.params.filter((param) => param.id !== id),
+                      }
+                    : tab
+            )
+        );
     };
-
+    
+    const removeHeaderRow = (id) => {
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab
+                    ? {
+                          ...tab,
+                          headers: tab.headers.filter((header) => header.id !== id),
+                      }
+                    : tab
+            )
+        );
+    };
+    
     const removeAllRows = () => {
-        setParams([]);  // Clears all parameters
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab ? { ...tab, params: [] } : tab
+            )
+        );
     };
+    
+    const removeAllHeaders = () => {
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) =>
+                tab.id === activeTab ? { ...tab, headers: [] } : tab
+            )
+        );
+    };
+    
+
 
 
     const showDropdown = () => {
@@ -182,32 +292,11 @@ const Add = () => {
         };
     }, [isResizing]);
 
-    const [headers, setHeaders] = useState([]); // Header state
-
-    const handleHeaderChange = (id, field, value) => {
-        setHeaders((prevHeaders) =>
-            prevHeaders.map((header) =>
-                header.id === id ? { ...header, [field]: value } : header
-            )
-        );
-    };
-
-    const addHeaderRow = () => {
-        setHeaders([...headers, { id: Date.now(), key: "", value: "", description: "", checked: false }]);
-    };
-
-    const removeHeaderRow = (id) => {
-        setHeaders(headers.filter((header) => header.id !== id));
-    };
-
-    const removeAllHeaders = () => {
-        setHeaders([]);
-    };
 
 
-    function showdrpdown() {
-        setdropdown(!dropdown);
-    }
+
+
+
 
     return (
         <div className="main">

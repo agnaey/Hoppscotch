@@ -5,24 +5,30 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import json
-# Create your views here.
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-@csrf_exempt
-def fetch_api(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            url = data.get("url")
-            if not url:
-                return JsonResponse({"error": "URL is required"}, status=400)
+DATA_STORE = {} 
 
-            response = requests.get(url)
-            return JsonResponse({
-                "status_code": response.status_code,
-                "headers": dict(response.headers),
-                "body": response.json() if "application/json" in response.headers.get("Content-Type", "") else response.text,
-            })
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+@api_view(["GET", "POST", "PUT", "DELETE"])
+def api_handler(request, key=None):
+    if request.method == "GET":
+        if key:
+            return Response(DATA_STORE.get(key, {"error": "Not found"}))
+        return Response(DATA_STORE)  # Return all stored data
 
-    return JsonResponse({"message": "Send a POST request with an API URL to fetch data."})
+    elif request.method == "POST":
+        DATA_STORE.update(request.data)  # Merge new data
+        return Response({"message": "Data saved", "data": request.data})
+
+    elif request.method == "PUT":
+        if key in DATA_STORE:
+            DATA_STORE[key] = request.data  # Update data
+            return Response({"message": "Updated", "data": request.data})
+        return Response({"error": "Key not found"}, status=404)
+
+    elif request.method == "DELETE":
+        if key in DATA_STORE:
+            del DATA_STORE[key]
+            return Response({"message": "Deleted"})
+        return Response({"error": "Key not found"}, status=404)

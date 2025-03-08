@@ -8,7 +8,7 @@ import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const Add = () => {
     const [selectedMethod, setSelectedMethod] = useState("GET");
-    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io", params: [{ id: Date.now(), key: "", value: "", description: "", checked: false ,headers: [],}],}]);
+    const [tabs, setTabs] = useState([{ id: 0, title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io", params: [{ id: Date.now(), key: "", value: "", description: "", checked: false, headers: [], }], }]);
     const [activeTab, setActiveTab] = useState(0);
     const [isResizing, setIsResizing] = useState(false);
     const [dropdown, setDropdown] = useState(false);
@@ -23,46 +23,52 @@ const Add = () => {
     const activeTabData = tabs.find((tab) => tab.id === activeTab) || {};
     const params = activeTabData.params || [];
     const headers = activeTabData.headers || [];
-    
+
 
     // Function to send API request
     const fetchAPI = async () => {
+        setTabs(prevTabs =>
+            prevTabs.map(tab =>
+                tab.id === activeTab ? { ...tab, loading: true, error: "", response: null } : tab
+            )
+        );
+    
         const activeTabData = tabs.find(tab => tab.id === activeTab);
-        if (!activeTabData || !activeTabData.url) {
-            setError("Please enter a valid API URL.");
+        if (!activeTabData) return;
+    
+        const { url, method, body } = activeTabData;
+        if (!url) {
+            setTabs(prevTabs =>
+                prevTabs.map(tab =>
+                    tab.id === activeTab ? { ...tab, error: "Please enter a valid API URL.", loading: false } : tab
+                )
+            );
             return;
         }
-
-        setLoading(true);
-        setError("");
-        setResponse(null);
-
+    
         try {
-            const options = {
-                method: activeTabData.method,
-                headers: { "Content-Type": "application/json" },
-            };
-
-            // Add body for POST/PUT requests
-            if (["POST", "PUT", "PATCH"].includes(activeTabData.method)) {
-                options.body = JSON.stringify({
-                    key1: "value1",
-                    key2: "value2",
-                });
-            }
-
-            const res = await fetch(activeTabData.url, options);
+            const options = { method, headers: { "Content-Type": "application/json" } };
+            if (["POST", "PUT"].includes(method) && body) options.body = JSON.stringify(body);
+    
+            const res = await fetch(url, options);
             const data = await res.json();
-
+    
             if (!res.ok) throw new Error(data.error || "Something went wrong");
-
-            setResponse(data);
+    
+            setTabs(prevTabs =>
+                prevTabs.map(tab =>
+                    tab.id === activeTab ? { ...tab, response: data, loading: false } : tab
+                )
+            );
         } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
+            setTabs(prevTabs =>
+                prevTabs.map(tab =>
+                    tab.id === activeTab ? { ...tab, error: err.message, loading: false } : tab
+                )
+            );
         }
     };
+    
 
 
 
@@ -70,7 +76,7 @@ const Add = () => {
         return (
             <SyntaxHighlighter
                 language="json"
-                style={whiteText ? {} : dracula} // Remove styles for plain white text
+                style={whiteText ? {} : dracula}
                 showLineNumbers
                 customStyle={whiteText ? { color: "white", background: "transparent" } : {}}
             >
@@ -78,11 +84,7 @@ const Add = () => {
             </SyntaxHighlighter>
         );
     };
-    const jsonResponse = {
-        "name": "John Doe",
-        "age": 30,
-        "city": "New York"
-    }
+
 
     const methodColors = {
         GET: "green",
@@ -91,13 +93,13 @@ const Add = () => {
         PATCH: "purple",
         DELETE: "red",
     };
-    // const changeMethod = (method) => {
-    //     setTabs((prevTabs) =>
-    //         prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
-    //     );
-    //     setSelectedMethod(method);
-    //     setDropdown(false);
-    // };
+    const changeMethod = (method) => {
+        setTabs((prevTabs) =>
+            prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, method } : tab))
+        );
+        setSelectedMethod(method);
+        setDropdown(false);
+    };
     const changeURL = (newURL) => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) => (tab.id === activeTab ? { ...tab, url: newURL } : tab))
@@ -105,7 +107,7 @@ const Add = () => {
     };
 
     const addTab = () => {
-        const newTab = { id: Date.now(), title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io",params: [], headers: [], body: "" };
+        const newTab = { id: Date.now(), title: "Untitled", method: "GET", url: "https://echo.hoppscotch.io", params: [], headers: [], body: "" };
         setTabs([...tabs, newTab]);
         setActiveTab(newTab.id);
         setSelectedMethod("GET");
@@ -119,22 +121,22 @@ const Add = () => {
         }
     };
 
-    
+
 
     const handleInputChange = (id, field, value) => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) =>
                 tab.id === activeTab
                     ? {
-                          ...tab,
-                          params: tab.params.map((param) =>
-                              param.id === id ? { ...param, [field]: value } : param
-                          ),
-                      }
+                        ...tab,
+                        params: tab.params.map((param) =>
+                            param.id === id ? { ...param, [field]: value } : param
+                        ),
+                    }
                     : tab
             )
         );
-    
+
         setTabs((prevTabs) =>
             prevTabs.map((tab) => {
                 if (tab.id === activeTab) {
@@ -153,24 +155,24 @@ const Add = () => {
             })
         );
     };
-    
-    
+
+
     const handleHeaderChange = (id, field, value) => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) =>
                 tab.id === activeTab
                     ? {
-                          ...tab,
-                          headers: tab.headers.map((header) =>
-                              header.id === id ? { ...header, [field]: value } : header
-                          ),
-                      }
+                        ...tab,
+                        headers: tab.headers.map((header) =>
+                            header.id === id ? { ...header, [field]: value } : header
+                        ),
+                    }
                     : tab
             )
         );
     };
-    
-    
+
+
 
     const addRow = () => {
         setTabs((prevTabs) =>
@@ -193,45 +195,45 @@ const Add = () => {
             prevTabs.map((tab) =>
                 tab.id === activeTab
                     ? {
-                          ...tab,
-                          headers: [
-                              ...(tab.headers || []), // Ensure headers is always an array
-                              { id: Date.now(), key: "", value: "", description: "", checked: false },
-                          ],
-                      }
+                        ...tab,
+                        headers: [
+                            ...(tab.headers || []),
+                            { id: Date.now(), key: "", value: "", description: "", checked: false },
+                        ],
+                    }
                     : tab
             )
         );
     };
-    
-    
+
+
 
     const removeRow = (id) => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) =>
                 tab.id === activeTab
                     ? {
-                          ...tab,
-                          params: tab.params.filter((param) => param.id !== id),
-                      }
+                        ...tab,
+                        params: tab.params.filter((param) => param.id !== id),
+                    }
                     : tab
             )
         );
     };
-    
+
     const removeHeaderRow = (id) => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) =>
                 tab.id === activeTab
                     ? {
-                          ...tab,
-                          headers: tab.headers.filter((header) => header.id !== id),
-                      }
+                        ...tab,
+                        headers: tab.headers.filter((header) => header.id !== id),
+                    }
                     : tab
             )
         );
     };
-    
+
     const removeAllRows = () => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) =>
@@ -239,7 +241,7 @@ const Add = () => {
             )
         );
     };
-    
+
     const removeAllHeaders = () => {
         setTabs((prevTabs) =>
             prevTabs.map((tab) =>
@@ -247,7 +249,7 @@ const Add = () => {
             )
         );
     };
-    
+
 
 
 
@@ -291,9 +293,6 @@ const Add = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isResizing]);
-
-
-
 
 
 
@@ -512,16 +511,18 @@ const Add = () => {
                                         </div>
 
                                     </div>
-                                    <div className="code p-4 w-100">
-                                        {error && <p className="text-red-500 mt-2">{error}</p>}
-
-                                        {loading && <p>Loading...</p>}
-
-                                        {response && (
-                                            <JsonViewer json={response} />
+                                    <div className="code p-2 w-100">
+                                        {tabs.find(tab => tab.id === activeTab)?.error && (
+                                            <p className="text-red-500 mt-2">{tabs.find(tab => tab.id === activeTab).error}</p>
                                         )}
 
+                                        {tabs.find(tab => tab.id === activeTab)?.loading && <p>Loading...</p>}
+
+                                        {tabs.find(tab => tab.id === activeTab)?.response && (
+                                            <JsonViewer json={tabs.find(tab => tab.id === activeTab).response} />
+                                        )}
                                     </div>
+
                                 </div>
                             )}
 
@@ -539,14 +540,17 @@ const Add = () => {
                                         </div>
                                     </div>
                                     <div className="code text-white p-4 w-100">
-                                        {error && <p className="text-red-500 mt-2">{error}</p>}
+                                        {tabs.find(tab => tab.id === activeTab)?.error && (
+                                            <p className="text-red-500 mt-2">{tabs.find(tab => tab.id === activeTab).error}</p>
+                                        )}
 
-                                        {loading && <p>Loading...</p>}
+                                        {tabs.find(tab => tab.id === activeTab)?.loading && <p>Loading...</p>}
 
-                                        {response && (
-                                                <JsonViewer json={response} whiteText={true} />
+                                        {tabs.find(tab => tab.id === activeTab)?.response && (
+                                            <JsonViewer json={tabs.find(tab => tab.id === activeTab).response} whiteText={true} />
                                         )}
                                     </div>
+
                                 </div>
                             )}
 

@@ -21,5 +21,6 @@ from app.views import *
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/data/", api_handler),       
-    path("api/data/<str:key>/", api_handler)]
+    path('', include('app.urls')),  
+
+]

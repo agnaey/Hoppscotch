@@ -26,17 +26,67 @@ const Add = () => {
 
 
     // Function to send API request
+    // const fetchAPI = async () => {
+    //     setTabs(prevTabs =>
+    //         prevTabs.map(tab =>
+    //             tab.id === activeTab ? { ...tab, loading: true, error: "", response: null } : tab
+    //         )
+    //     );
+
+    //     const activeTabData = tabs.find(tab => tab.id === activeTab);
+    //     if (!activeTabData) return;
+
+    //     const { url, method, body } = activeTabData;
+    //     if (!url) {
+    //         setTabs(prevTabs =>
+    //             prevTabs.map(tab =>
+    //                 tab.id === activeTab ? { ...tab, error: "Please enter a valid API URL.", loading: false } : tab
+    //             )
+    //         );
+    //         return;
+    //     }
+
+    //     try {
+    //         const options = { method, headers: { "Content-Type": "application/json" } };
+    //         if (["POST", "PUT"].includes(method) && body) options.body = JSON.stringify(body);
+
+    //         const res = await fetch(url, options);
+    //         const data = await res.json();
+
+    //         if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+    //         setTabs(prevTabs =>
+    //             prevTabs.map(tab =>
+    //                 tab.id === activeTab ? { ...tab, response: data, loading: false } : tab
+    //             )
+    //         );
+    //     } catch (err) {
+    //         setTabs(prevTabs =>
+    //             prevTabs.map(tab =>
+    //                 tab.id === activeTab ? { ...tab, error: err.message, loading: false } : tab
+    //             )
+    //         );
+    //     }
+    // };
+    const API_BASE = "http://127.0.0.1:8000"; // Django backend URL
+
     const fetchAPI = async () => {
         setTabs(prevTabs =>
             prevTabs.map(tab =>
                 tab.id === activeTab ? { ...tab, loading: true, error: "", response: null } : tab
             )
         );
-    
+
         const activeTabData = tabs.find(tab => tab.id === activeTab);
         if (!activeTabData) return;
-    
-        const { url, method, body } = activeTabData;
+
+        let { url, method, body } = activeTabData;
+
+        // Ensure URL is properly formatted
+        if (!url.startsWith("http")) {
+            url = `${API_BASE}${url.startsWith("/") ? url : `/${url}`}`;
+        }
+
         if (!url) {
             setTabs(prevTabs =>
                 prevTabs.map(tab =>
@@ -45,16 +95,22 @@ const Add = () => {
             );
             return;
         }
-    
+
         try {
-            const options = { method, headers: { "Content-Type": "application/json" } };
-            if (["POST", "PUT"].includes(method) && body) options.body = JSON.stringify(body);
-    
+            const options = {
+                method,
+                headers: { "Content-Type": "application/json" },
+            };
+
+            if (["POST", "PUT"].includes(method) && body) {
+                options.body = JSON.stringify(body);
+            }
+
             const res = await fetch(url, options);
             const data = await res.json();
-    
+
             if (!res.ok) throw new Error(data.error || "Something went wrong");
-    
+
             setTabs(prevTabs =>
                 prevTabs.map(tab =>
                     tab.id === activeTab ? { ...tab, response: data, loading: false } : tab
@@ -68,7 +124,9 @@ const Add = () => {
             );
         }
     };
-    
+
+
+
 
 
 
@@ -277,6 +335,29 @@ const Add = () => {
             }
         };
 
+        function MyComponent() {
+            const [data, setData] = useState(null);
+
+            useEffect(() => {
+                fetch("http://127.0.0.1:8000/api/test/", {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("✅ Stored Data:", data);
+                        setData(data);
+                    })
+                    .catch(error => console.error("❌ Error:", error));
+            }, []);
+
+            return (
+                <div>
+                    <h3>Stored Data:</h3>
+                    {data ? <pre>{JSON.stringify(data, null, 2)}</pre> : "Loading..."}
+                </div>
+            );
+        }
 
 
 
@@ -295,6 +376,23 @@ const Add = () => {
     }, [isResizing]);
 
 
+    const addBodyRow = () => {
+        setBodyParams([...bodyParams, { id: Date.now(), key: "", value: "" }]);
+    };
+
+    const removeBodyRow = (id) => {
+        setBodyParams(prev => prev.filter(param => param.id !== id));
+    };
+
+    const removeAllBodyRows = () => {
+        setBodyParams([]);
+    };
+    const handleBodyChange = (id, field, value) => {
+        setBodyParams(prev =>
+            prev.map(param => (param.id === id ? { ...param, [field]: value } : param))
+        );
+    };
+    const [bodyParams, setBodyParams] = useState([{ id: 1, key: "", value: "" }]);
 
 
     return (
@@ -411,6 +509,7 @@ const Add = () => {
                                                             <input type="text" placeholder="Value" style={{ flex: "1", minWidth: "120px" }} value={param.value} onChange={(e) => handleInputChange(param.id, "value", e.target.value)} />
                                                             <input type="text" placeholder="Description" style={{ flex: "1", minWidth: "150px" }} value={param.description} onChange={(e) => handleInputChange(param.id, "description", e.target.value)} />
                                                             <input type="checkbox" checked={param.checked} onChange={(e) => handleInputChange(param.id, "checked", e.target.checked)} />
+
                                                             <FontAwesomeIcon icon={faTrash} className="para-delete delete-icon mt-1" style={{ cursor: "pointer" }} onClick={() => removeRow(param.id)} />
                                                         </form>
                                                     </div>
@@ -420,6 +519,42 @@ const Add = () => {
                                             )}
                                         </div>
                                     )}
+
+                                    {activeSection === "custom-body" && (
+                                        <div>
+                                            <div className="parametrs text-secondary pb-2" style={{ display: "flex", justifyContent: "space-between" }}>
+                                                <span>Request Body</span>
+                                                <div style={{ display: "flex", gap: "18px" }}>
+                                                    <FontAwesomeIcon icon={faTrash} className="delete-icon mt-1" style={{ cursor: "pointer" }} onClick={removeAllBodyRows} />
+                                                    <FontAwesomeIcon icon={faPlus} className="plus-icon mt-1" style={{ cursor: "pointer" }} onClick={addBodyRow} />
+                                                </div>
+                                            </div>
+
+                                            {bodyParams.length > 0 ? (
+                                                bodyParams.map((param) => (
+                                                    <div className="parametrs" key={param.id} style={{ display: "flex", gap: "10px", alignItems: "center", overflowX: "auto" }}>
+                                                        <form className="param-form w-100" style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "nowrap" }}>
+                                                            <input type="text" placeholder="Key" style={{ flex: "1", minWidth: "120px" }} value={param.key} onChange={(e) => handleBodyChange(param.id, "key", e.target.value)} />
+                                                            <input type="text" placeholder="Value" style={{ flex: "1", minWidth: "120px" }} value={param.value} onChange={(e) => handleBodyChange(param.id, "value", e.target.value)} />
+                                                            <input
+                                                                type="checkbox"
+                                                                // onChange={handlePost} 
+                                                                style={{ cursor: "pointer" }}
+                                                            /> Add Data
+
+                                                            <FontAwesomeIcon icon={faTrash} className="para-delete delete-icon mt-1" style={{ cursor: "pointer" }} onClick={() => removeBodyRow(param.id)} />
+                                                        </form>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p>No body parameters</p>
+                                            )}
+                                        </div>
+                                    )}
+
+
+
+
 
                                     {/* Headers Section (Same as Parameters) */}
                                     {activeSection === "custom-header" && (
@@ -453,7 +588,7 @@ const Add = () => {
                                     )}
 
                                     {/* Request Body Section */}
-                                    {activeSection === "custom-body" && (
+                                    {/* {activeSection === "custom-body" && (
                                         <div className="parametrs text-secondary pb-2" style={{ display: "flex", gap: "18px" }}>
                                             <span>Content Type</span>
                                             <span>None ▾</span>
@@ -462,7 +597,7 @@ const Add = () => {
                                                 &nbsp;&nbsp; Override
                                             </span>
                                         </div>
-                                    )}
+                                    )} */}
                                 </div>
                             ))}
                         </div>

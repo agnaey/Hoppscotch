@@ -5,30 +5,39 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import json
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+from django.http import JsonResponse
+from .models import Message
+import json
 
-DATA_STORE = {} 
+def api_endpoint(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            print("📩 Received Data:", data)
+            
+            # Store data in database
+            message = Message.objects.create(key=data.get("key"), value=data.get("value"))
+            
+            return JsonResponse({"message": "Data stored!", "data": {"key": message.key, "value": message.value}}, status=200)
 
-@api_view(["GET", "POST", "PUT", "DELETE"])
-def api_handler(request, key=None):
-    if request.method == "GET":
-        if key:
-            return Response(DATA_STORE.get(key, {"error": "Not found"}))
-        return Response(DATA_STORE)  # Return all stored data
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    elif request.method == "POST":
-        DATA_STORE.update(request.data)  # Merge new data
-        return Response({"message": "Data saved", "data": request.data})
+    elif request.method == "GET":
+        # Retrieve stored data
+        messages = Message.objects.all().values("key", "value")  # Get all records
+        return JsonResponse({"message": "Stored data retrieved!", "data": list(messages)}, status=200)
 
-    elif request.method == "PUT":
-        if key in DATA_STORE:
-            DATA_STORE[key] = request.data  # Update data
-            return Response({"message": "Updated", "data": request.data})
-        return Response({"error": "Key not found"}, status=404)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
 
-    elif request.method == "DELETE":
-        if key in DATA_STORE:
-            del DATA_STORE[key]
-            return Response({"message": "Deleted"})
-        return Response({"error": "Key not found"}, status=404)
+@csrf_exempt  
+def test_view(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            print("Received data:", data)  # Debugging
+            return JsonResponse({"message": "Data added!", "data": data}, status=201)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    return JsonResponse({"message": "GET request received!"})
